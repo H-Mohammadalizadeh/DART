@@ -64,6 +64,8 @@ ABSENT_CELL = "#D9D9D9"
 
 
 def _apply_style() -> None:
+    """The shared style, plus what this figure alone needs: a math font for
+    the node labels and smaller tick and legend type."""
     style.apply()
     plt.rcParams.update(
         {

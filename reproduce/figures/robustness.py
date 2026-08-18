@@ -47,6 +47,14 @@ ETA_SWEEP = [0.5, 1.0, 2.0, 5.0, 10.0]
 #: Colour scale limit for the regime map, in percent margin.
 REGIME_SCALE = 30.0
 
+#: Decimals the generalization report prints a margin to. The map is a
+#: rendering of that report, so both its colours and its labels are taken
+#: from the published value rather than from the raw float behind it, and
+#: map, table and JSON can never disagree. It matters at the boundaries: a
+#: case at -29.481% is -29.5% in the table, and a label taken from the raw
+#: float would read -29 against the table's -29.5.
+REPORT_DECIMALS = 1
+
 
 def build_e5(output: Path) -> None:
     """E5 — weighted P99 against offered load on topology F."""
@@ -245,7 +253,8 @@ def build_e8(output: Path, report_path: Path) -> None:
 
     grid = np.full((len(dominances), len(asymmetries)), np.nan)
     for (dominance, asymmetry), margin in margins.items():
-        grid[dominances.index(dominance), asymmetries.index(asymmetry)] = margin
+        row, column = dominances.index(dominance), asymmetries.index(asymmetry)
+        grid[row, column] = round(margin, REPORT_DECIMALS)
 
     # Sized like one panel of E4, roughly half a column. With equal aspect
     # the square grid sets the final width; insert it in LaTeX at that same

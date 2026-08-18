@@ -39,7 +39,14 @@ BAR_WIDTH = 0.032
 
 
 def apply() -> None:
-    """Install the shared rcParams. Call once per figure."""
+    """Install the shared rcParams. Call once at the start of every figure.
+
+    Matplotlib's rcParams are global, so a figure that adjusts a setting for
+    its own needs would otherwise change every figure drawn after it in the
+    same process. Resetting to the library defaults first makes each figure
+    independent of the order the set is built in.
+    """
+    plt.rcParams.update(plt.rcParamsDefault)
     plt.rcParams.update(
         {
             "figure.dpi": 160,
