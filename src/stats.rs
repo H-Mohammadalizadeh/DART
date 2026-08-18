@@ -19,6 +19,8 @@
 //! The simulator owns the RNG, so the reservoir routines take a `u64`
 //! uniform drawn by the caller rather than sampling themselves.
 
+use std::io::{self, Write};
+
 use serde::Serialize;
 
 /// Percentile points reported for every distribution.
@@ -524,36 +526,48 @@ impl Aggregate {
             .expect("percentile not in PERCENTILES")
     }
 
-    pub fn print(&self) {
+    /// Write the human-readable summary to `out`.
+    pub fn write_summary(&self, out: &mut impl Write) -> io::Result<()> {
         let p99 = Self::pct_idx(0.99);
-        println!("=== DARTsim results ({} replications) ===", self.n_reps);
-        println!(
+        writeln!(
+            out,
+            "=== DARTsim results ({} replications) ===",
+            self.n_reps
+        )?;
+        writeln!(
+            out,
             "Server: serving={:.4}  reconfiguring={:.4}  idle={:.4}",
             self.utilization, self.switch_frac, self.idle_frac
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             "Reconfigurations per replication: {:.2}",
             self.mean_switchovers
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             "En-route services per replication: {:.2}",
             self.mean_transit_services
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             "Sojourn P99 (unweighted, pooled): {:.4}",
             self.sojourn_percentiles_overall[p99]
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             "Weighted sojourn P99 (objective): {:.2} ± {:.2}  (mean ± 95% t-CI over {} reps)",
             self.weighted_sojourn_pct_mean[p99], self.weighted_sojourn_pct_ci95[p99], self.n_reps
-        );
-        println!();
-        println!(
+        )?;
+        writeln!(out)?;
+        writeln!(
+            out,
             "{:>3}  {:>8}  {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}",
             "i", "weight", "E[L]", "stdev[L]", "E[W]", "E[T]", "T_p99", "throughput"
-        );
+        )?;
         for i in 0..self.n {
-            println!(
+            writeln!(
+                out,
                 "{:>3}  {:>8.3}  {:>12.4} {:>12.4} {:>12.4} {:>12.4} {:>12.4} {:>12.4}",
                 i,
                 self.weights[i],
@@ -563,16 +577,18 @@ impl Aggregate {
                 self.mean_sojourn[i],
                 self.sojourn_percentiles[i][p99],
                 self.throughput[i]
-            );
+            )?;
         }
-        println!();
-        println!(
+        writeln!(out)?;
+        writeln!(
+            out,
             "Weighted queue length  Σ_i w_i E[L_i]  = {:.4}  (stdev across reps {:.4})",
             self.mean_weighted_qlen, self.std_weighted_qlen
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             "Weighted queue length  / Σ_i w_i       = {:.4}",
             self.mean_weighted_qlen_normalized
-        );
+        )
     }
 }

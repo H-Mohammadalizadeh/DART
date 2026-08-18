@@ -21,6 +21,7 @@
 //! the bound.
 
 use std::env;
+use std::io::{self, BufWriter, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -111,25 +112,39 @@ fn main() -> ExitCode {
         }
     };
 
+    match emit(&cfg, args.mode, args.cap) {
+        Ok(()) => ExitCode::SUCCESS,
+        // A reader that stops early closes the pipe; that is a normal way
+        // to end a dump of several hundred thousand rows.
+        Err(e) if e.kind() == io::ErrorKind::BrokenPipe => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("write error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn emit(cfg: &Config, mode: Mode, cap: usize) -> io::Result<()> {
     let policy = cfg.policy.kind.name();
     let n_reps = cfg.simulation.n_replications;
     let base_seed = cfg.simulation.seed;
-    let cap = args.cap;
+    let stdout = io::stdout();
+    let mut out = BufWriter::new(stdout.lock());
 
-    match args.mode {
+    match mode {
         Mode::Weighted => {
             let rows: Vec<(usize, f64)> = (0..n_reps)
                 .into_par_iter()
                 .flat_map_iter(|r| {
-                    let pooled = run_replication(&cfg, seeding::samples(base_seed, r))
+                    let pooled = run_replication(cfg, seeding::samples(base_seed, r))
                         .weighted_sojourn_pooled;
                     let step = stride(pooled.len(), cap);
                     pooled.into_iter().step_by(step).map(move |w| (r, w))
                 })
                 .collect();
-            println!("policy,replication,weighted_sojourn");
+            writeln!(out, "policy,replication,weighted_sojourn")?;
             for (r, w) in rows {
-                println!("{policy},{r},{w}");
+                writeln!(out, "{policy},{r},{w}")?;
             }
         }
         Mode::PerQueue => {
@@ -137,7 +152,7 @@ fn main() -> ExitCode {
                 .into_par_iter()
                 .flat_map_iter(|r| {
                     let seed = seeding::samples(base_seed, r);
-                    run_replication(&cfg, seed)
+                    run_replication(cfg, seed)
                         .sojourn_samples
                         .into_iter()
                         .enumerate()
@@ -149,11 +164,11 @@ fn main() -> ExitCode {
                         })
                 })
                 .collect();
-            println!("policy,replication,seed,queue,sojourn");
+            writeln!(out, "policy,replication,seed,queue,sojourn")?;
             for (r, seed, queue, sojourn) in rows {
-                println!("{policy},{r},{seed},{queue},{sojourn}");
+                writeln!(out, "{policy},{r},{seed},{queue},{sojourn}")?;
             }
         }
     }
-    ExitCode::SUCCESS
+    out.flush()
 }

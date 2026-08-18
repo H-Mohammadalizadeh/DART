@@ -23,7 +23,7 @@ against, and nothing else.
 ## Quick start
 
 ```sh
-cargo build --release            # build the simulator (~15 s)
+cargo build --release            # build the simulator (~30 s)
 cargo test  --release            # 66 tests
 
 # One run, printed as a summary
@@ -231,7 +231,9 @@ python3 -m reproduce --figures E2,E3
 case-by-case result of the three generalization batteries.
 
 The `figures/` directory holds the output, and what is committed there is
-what the paper prints. Re-running reproduces it.
+what the paper prints. Re-running reproduces it, and the filenames are the
+ones the paper's `\includegraphics` calls use, so the directory drops
+straight into the paper source.
 
 Results are cached under `.cache/`, keyed by the exact configuration text
 of each run, so re-rendering after a styling change is instant. Delete that

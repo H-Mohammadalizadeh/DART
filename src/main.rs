@@ -9,6 +9,7 @@
 //! for appending many runs into one table.
 
 use std::env;
+use std::io::{self, BufWriter, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
@@ -71,8 +72,8 @@ struct JsonReport<'a> {
 
 /// One CSV record summarizing the run: identification, the objective, the
 /// server's time budget, and per-configuration delay and visit structure.
-fn print_csv(cfg: &Config, agg: &Aggregate) {
-    use std::fmt::Write;
+fn write_csv(cfg: &Config, agg: &Aggregate, out: &mut impl Write) -> io::Result<()> {
+    use std::fmt::Write as _;
     let n = agg.n;
     let p50 = Aggregate::pct_idx(0.50);
     let p95 = Aggregate::pct_idx(0.95);
@@ -105,7 +106,7 @@ fn print_csv(cfg: &Config, agg: &Aggregate) {
             let _ = write!(header, ",{prefix}_{i}");
         }
     }
-    println!("{header}");
+    writeln!(out, "{header}")?;
 
     let mut row = String::new();
     let _ = write!(
@@ -145,7 +146,7 @@ fn print_csv(cfg: &Config, agg: &Aggregate) {
     for i in 0..n {
         let _ = write!(row, ",{}", agg.intervisit_percentiles[i][p99]);
     }
-    println!("{row}");
+    writeln!(out, "{row}")
 }
 
 fn main() -> ExitCode {
@@ -168,24 +169,37 @@ fn main() -> ExitCode {
     let agg = run_parallel(&cfg);
     let elapsed = start.elapsed().as_secs_f64();
 
+    match emit(&cfg, &agg, elapsed, mode) {
+        Ok(()) => ExitCode::SUCCESS,
+        // A reader that stops early -- `dartsim ... | head` -- closes the
+        // pipe. That is a normal way to end, not a failure to report.
+        Err(e) if e.kind() == io::ErrorKind::BrokenPipe => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("write error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn emit(cfg: &Config, agg: &Aggregate, elapsed: f64, mode: OutputMode) -> io::Result<()> {
+    let stdout = io::stdout();
+    let mut out = BufWriter::new(stdout.lock());
     match mode {
         OutputMode::Human => {
-            agg.print();
-            println!();
-            println!("wall time: {elapsed:.3}s");
+            agg.write_summary(&mut out)?;
+            writeln!(out)?;
+            writeln!(out, "wall time: {elapsed:.3}s")?;
         }
         OutputMode::Json => {
             let report = JsonReport {
-                aggregate: &agg,
+                aggregate: agg,
                 percentile_pts: &PERCENTILES,
                 wall_time_s: elapsed,
             };
-            println!(
-                "{}",
-                serde_json::to_string(&report).expect("aggregate serializes")
-            );
+            serde_json::to_writer(&mut out, &report)?;
+            writeln!(out)?;
         }
-        OutputMode::Csv => print_csv(&cfg, &agg),
+        OutputMode::Csv => write_csv(cfg, agg, &mut out)?,
     }
-    ExitCode::SUCCESS
+    out.flush()
 }
