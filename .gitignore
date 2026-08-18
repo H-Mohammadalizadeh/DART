@@ -1,0 +1,13 @@
+# Rust build output
+/target/
+
+# Cached simulation results, keyed by configuration text
+/.cache/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Editor and OS noise
+.DS_Store
+*.swp
