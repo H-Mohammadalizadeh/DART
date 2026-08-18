@@ -1,0 +1,40 @@
+# Generalization case: scalability / n_10.
+#
+# Scalability ladder: the same structure grown from 4 to 10 configurations.
+#
+# Reconfiguration times use one global lognormal (CV = 2) family, so the
+# battery probes the graph and the load rather than a per-edge family mix.
+
+[meta]
+label = "n_10"
+name = "scaling/n_10"
+
+[system]
+n_queues = 10
+
+[arrivals]
+rates = [0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.2]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [6.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 6.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [ 1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0],
+]
+
+distribution = "lognormal"
+distribution_cv = 2.0

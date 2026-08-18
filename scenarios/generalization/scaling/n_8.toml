@@ -1,0 +1,38 @@
+# Generalization case: scalability / n_8.
+#
+# Scalability ladder: the same structure grown from 4 to 10 configurations.
+#
+# Reconfiguration times use one global lognormal (CV = 2) family, so the
+# battery probes the graph and the load rather than a per-edge family mix.
+
+[meta]
+label = "n_8"
+name = "scaling/n_8"
+
+[system]
+n_queues = 8
+
+[arrivals]
+rates = [0.2, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.2]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [6.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 6.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [ 1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0, -1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  1.0,  0.0],
+]
+
+distribution = "lognormal"
+distribution_cv = 2.0

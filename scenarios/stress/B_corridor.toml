@@ -1,0 +1,35 @@
+# Stress topology B -- corridor.
+#
+# The same line at higher load, so the middle can no longer be skipped: isolates the en-route service rule.
+#
+# Reconfiguration-time families: Every edge is exponential.
+
+[meta]
+label = "B"
+name = "corridor"
+description = "The same line at higher load, so the middle can no longer be skipped: isolates the en-route service rule."
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.32, 0.12, 0.12, 0.32]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [6.0, 1.0, 1.0, 6.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  1.0, -1.0, -1.0],
+    [ 1.0,  0.0,  1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0,  1.0,  0.0],
+]
+
+# Default family for every edge without an override below.
+distribution = "exponential"
+

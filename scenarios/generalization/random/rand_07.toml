@@ -1,0 +1,38 @@
+# Generalization case: random_topology / rand_07.
+#
+# Random sparse graph: six configurations, about half the directed edges
+# present, asymmetric means in [0.5, 3], a few high-priority configurations,
+# offered load in [0.75, 0.90].
+#
+# Reconfiguration times use one global lognormal (CV = 2) family, so the
+# battery probes the graph and the load rather than a per-edge family mix.
+
+[meta]
+label = "rand_07"
+name = "random/rand_07"
+
+[system]
+n_queues = 6
+
+[arrivals]
+rates = [0.27949346, 0.080173802, 0.080173802, 0.080173802, 0.27949346, 0.080173802]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [6.0, 1.0, 1.0, 1.0, 5.0, 1.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [      0.0, 1.6870307,      -1.0,      -1.0,      -1.0, 1.7007712],
+    [1.0443823,       0.0, 1.2700963,      -1.0,      -1.0,      -1.0],
+    [     -1.0, 1.0082451,       0.0,  1.180474, 1.8958182,      -1.0],
+    [     -1.0,      -1.0, 1.9207009,       0.0, 1.1396261,      -1.0],
+    [     -1.0,      -1.0,  1.806763, 1.4196341,       0.0, 1.2999245],
+    [1.7726292,      -1.0,      -1.0,      -1.0, 1.0488275,       0.0],
+]
+
+distribution = "lognormal"
+distribution_cv = 2.0

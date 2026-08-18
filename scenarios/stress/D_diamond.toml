@@ -1,0 +1,101 @@
+# Stress topology D -- diamond.
+#
+# Two asymmetric routes between the high-priority configurations: the best way out differs from the best way back.
+#
+# Reconfiguration-time families: Each edge takes the mean-preserving family that matches its physical
+# role, so one graph can carry up to four families and tau_ij may differ
+# in distribution from tau_ji.
+
+[meta]
+label = "D"
+name = "diamond"
+description = "Two asymmetric routes between the high-priority configurations: the best way out differs from the best way back."
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.3, 0.12, 0.12, 0.3]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [8.0, 1.25, 1.25, 8.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [0.0, 0.6, 3.5, 4.8],
+    [0.7, 0.0, 1.2, 0.7],
+    [0.7, 1.2, 0.0, 3.5],
+    [4.8, 3.5, 0.6, 0.0],
+]
+
+# Default family for every edge without an override below.
+distribution = "exponential"
+
+# 0 -> 1  (mean 0.6): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 0
+to   = 1
+kind = "deterministic"
+
+# 0 -> 2  (mean 3.5): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 0
+to   = 2
+kind = "lognormal"
+cv = 2.0
+
+# 0 -> 3  (mean 4.8): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 0
+to   = 3
+kind = "lognormal"
+cv = 2.0
+
+# 1 -> 0  (mean 0.7): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 1
+to   = 0
+kind = "deterministic"
+
+# 1 -> 3  (mean 0.7): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 1
+to   = 3
+kind = "deterministic"
+
+# 2 -> 0  (mean 0.7): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 2
+to   = 0
+kind = "deterministic"
+
+# 2 -> 3  (mean 3.5): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 2
+to   = 3
+kind = "lognormal"
+cv = 2.0
+
+# 3 -> 0  (mean 4.8): slow return, bursty heavy tail.
+[[topology.edge_overrides]]
+from = 3
+to   = 0
+kind = "pareto2"
+alpha = 3.0
+
+# 3 -> 1  (mean 3.5): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 3
+to   = 1
+kind = "lognormal"
+cv = 2.0
+
+# 3 -> 2  (mean 0.6): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 3
+to   = 2
+kind = "deterministic"

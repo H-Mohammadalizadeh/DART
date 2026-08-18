@@ -1,0 +1,35 @@
+# Stress topology C -- return-trap.
+#
+# One dominant configuration that is quick to leave and slow to return to: isolates the leave penalty.
+#
+# Reconfiguration-time families: Every edge is exponential.
+
+[meta]
+label = "C"
+name = "return-trap"
+description = "One dominant configuration that is quick to leave and slow to return to: isolates the leave penalty."
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.75, 0.07, 0.07, 0.07]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [10.0, 1.0, 1.0, 1.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  0.2, -1.0, -1.0],
+    [ 8.0,  0.0,  1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0,  1.0,  0.0],
+]
+
+# Default family for every edge without an override below.
+distribution = "exponential"
+

@@ -1,0 +1,35 @@
+# Generalization case: regime_boundary / dom_1__asym_1.
+#
+# Regime-boundary cell: weight dominance w_0/w_i against reconfiguration
+# asymmetry r/d, on a fixed graph.
+#
+# Reconfiguration times use one global lognormal (CV = 2) family, so the
+# battery probes the graph and the load rather than a per-edge family mix.
+
+[meta]
+label = "dom_1__asym_1"
+name = "regime/dom_1__asym_1"
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.22, 0.22, 0.22, 0.22]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [1.0, 1.0, 1.0, 1.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  0.5, -1.0, -1.0],
+    [ 0.5,  0.0,  1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0,  1.0,  0.0],
+]
+
+distribution = "lognormal"
+distribution_cv = 2.0

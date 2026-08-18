@@ -1,0 +1,90 @@
+# Stress topology F -- multipath-trap.
+#
+# Every difficulty at once: a dominant configuration with a long return, asymmetric routes, parallel paths.
+#
+# Reconfiguration-time families: Each edge takes the mean-preserving family that matches its physical
+# role, so one graph can carry up to four families and tau_ij may differ
+# in distribution from tau_ji.
+
+[meta]
+label = "F"
+name = "multipath-trap"
+description = "Every difficulty at once: a dominant configuration with a long return, asymmetric routes, parallel paths."
+
+[system]
+n_queues = 5
+
+[arrivals]
+rates = [0.7, 0.06, 0.06, 0.06, 0.06]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [10.0, 1.0, 1.0, 1.0, 1.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  0.3,  2.0, -1.0,  6.0],
+    [ 6.0,  0.0,  1.0, -1.0,  0.7],
+    [ 0.8,  1.0,  0.0,  0.8,  2.0],
+    [ 0.7, -1.0,  0.8,  0.0,  6.0],
+    [ 6.0,  6.0,  2.0,  1.0,  0.0],
+]
+
+# Default family for every edge without an override below.
+distribution = "exponential"
+
+# 0 -> 1  (mean 0.3): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 0
+to   = 1
+kind = "deterministic"
+
+# 0 -> 4  (mean 6.0): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 0
+to   = 4
+kind = "lognormal"
+cv = 2.0
+
+# 1 -> 0  (mean 6.0): slow return, bursty heavy tail.
+[[topology.edge_overrides]]
+from = 1
+to   = 0
+kind = "pareto2"
+alpha = 3.0
+
+# 1 -> 4  (mean 0.7): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 1
+to   = 4
+kind = "deterministic"
+
+# 3 -> 0  (mean 0.7): quick, well-characterised reconfiguration.
+[[topology.edge_overrides]]
+from = 3
+to   = 0
+kind = "deterministic"
+
+# 3 -> 4  (mean 6.0): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 3
+to   = 4
+kind = "lognormal"
+cv = 2.0
+
+# 4 -> 0  (mean 6.0): slow return, bursty heavy tail.
+[[topology.edge_overrides]]
+from = 4
+to   = 0
+kind = "pareto2"
+alpha = 3.0
+
+# 4 -> 1  (mean 6.0): slow outbound, moderately variable.
+[[topology.edge_overrides]]
+from = 4
+to   = 1
+kind = "lognormal"
+cv = 2.0

@@ -1,0 +1,54 @@
+# A minimal runnable configuration: stress topology C, under DART.
+#
+# Four configurations on a line. Configuration 0 carries most of the load
+# and ten times the holding cost of the others. The edge out of it is short
+# (0.2) and the only edge back into it is long (8.0), so it is quick to
+# leave and slow to return to -- a policy that serves it and leaves pays
+# that long return every time its backlog rebuilds.
+#
+#   dartsim --config examples/return_trap.toml
+#
+# Swap `[policy]` for one of the baselines to compare:
+#
+#   kind = "tian"          k = 4
+#   kind = "tian_transit"  k = 4   eta = 1.0
+#   kind = "dvo"
+
+[meta]
+label = "C"
+name = "return-trap"
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.75, 0.07, 0.07, 0.07]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [10.0, 1.0, 1.0, 1.0]
+
+[topology]
+switchover_times = [
+    [ 0.0,  0.2, -1.0, -1.0],
+    [ 8.0,  0.0,  1.0, -1.0],
+    [-1.0,  1.0,  0.0,  1.0],
+    [-1.0, -1.0,  1.0,  0.0],
+]
+distribution = "exponential"
+
+[simulation]
+# A short protocol, so this runs in a few seconds. The paper's protocol is
+# horizon = 200000, warmup = 30000, n_replications = 16, seed = 2027.
+horizon = 20000.0
+warmup = 3000.0
+n_replications = 4
+seed = 2027
+
+[policy]
+kind = "dart"
+start = 0
+alpha = 0.5
+beta = 6.0

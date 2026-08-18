@@ -1,0 +1,35 @@
+# Stress topology A -- bridge.
+#
+# Symmetric line, high priority at both ends: can a policy protect both without starving the middle?
+#
+# Reconfiguration-time families: Every edge is exponential.
+
+[meta]
+label = "A"
+name = "bridge"
+description = "Symmetric line, high priority at both ends: can a policy protect both without starving the middle?"
+
+[system]
+n_queues = 4
+
+[arrivals]
+rates = [0.26, 0.14, 0.14, 0.26]
+
+[service]
+rates = [1.0, 1.0, 1.0, 1.0]
+
+[priorities]
+weights = [8.0, 1.0, 1.0, 8.0]
+
+[topology]
+# Mean reconfiguration times T_ij. A negative entry marks an absent edge.
+switchover_times = [
+    [ 0.0,  1.2, -1.0, -1.0],
+    [ 1.2,  0.0,  1.2, -1.0],
+    [-1.0,  1.2,  0.0,  1.2],
+    [-1.0, -1.0,  1.2,  0.0],
+]
+
+# Default family for every edge without an override below.
+distribution = "exponential"
+
