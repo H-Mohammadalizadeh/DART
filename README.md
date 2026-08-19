@@ -16,7 +16,7 @@ three decisions: which configuration to aim for, which path to take, and
 whether to pause en route.
 
 The simulator implements **DART** and the three baselines it is measured
-against, and nothing else.
+against.
 
 ---
 
@@ -67,21 +67,6 @@ A **scenario file** describes a system but not how it is measured or by
 which policy. `reproduce/` appends a `[simulation]` and a `[policy]`
 section to the scenario text verbatim, so every policy provably sees the
 same system, the same graph, and the same seeds.
-
----
-
-## Terminology
-
-The paper is written for reconfigurable networks; the simulator uses the
-queueing-theory vocabulary its baselines come from. They line up as:
-
-| Paper | Code |
-|---|---|
-| configuration | queue (`n_queues`, `queue_lens`) |
-| reconfiguration time `τ_ij` | switchover time (`switchover_times`) |
-| mean reconfiguration matrix `T` | `topology.switchover_times` |
-| holding-cost weight `w_i` | `priorities.weights` |
-| high-priority / low-priority class | weight at least / below half the largest |
 
 ---
 
